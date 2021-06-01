@@ -1,0 +1,3 @@
+[submodule "Libs/IIG.BinaryFlag"]
+	path = Libs/IIG.BinaryFlag
+	url = https://github.com/IGORGOD/IIG.BinaryFlag.git
