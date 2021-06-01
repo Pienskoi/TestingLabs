@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileWorker.Test", "FileWorker.Test\FileWorker.Test.csproj", "{937BACCF-20EF-4E18-9D4D-AD4F70725BBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileWorker.Test", "FileWorker.Test\FileWorker.Test.csproj", "{937BACCF-20EF-4E18-9D4D-AD4F70725BBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryFlag.Test", "BinaryFlag.Test\BinaryFlag.Test.csproj", "{01C2A308-C258-46B6-AF48-F142C4996EE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IIG.BinaryFlag", "Libs\IIG.BinaryFlag\IIG.BinaryFlag\IIG.BinaryFlag.csproj", "{31F66863-26A4-4626-9566-BFFFEA52C1A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{937BACCF-20EF-4E18-9D4D-AD4F70725BBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{937BACCF-20EF-4E18-9D4D-AD4F70725BBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{937BACCF-20EF-4E18-9D4D-AD4F70725BBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01C2A308-C258-46B6-AF48-F142C4996EE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01C2A308-C258-46B6-AF48-F142C4996EE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01C2A308-C258-46B6-AF48-F142C4996EE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01C2A308-C258-46B6-AF48-F142C4996EE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31F66863-26A4-4626-9566-BFFFEA52C1A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31F66863-26A4-4626-9566-BFFFEA52C1A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31F66863-26A4-4626-9566-BFFFEA52C1A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31F66863-26A4-4626-9566-BFFFEA52C1A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
