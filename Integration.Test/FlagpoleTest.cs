@@ -99,7 +99,7 @@ namespace Integration.Test
         [TestMethod]
         public void Test_AddFlag_LongFlagView_True()
         {
-            var flag = new MultipleBinaryFlag(300_000_000);
+            var flag = new MultipleBinaryFlag(500_000_000);
             var flagView = flag.ToString();
             var flagValue = (bool)flag.GetFlag();
 
