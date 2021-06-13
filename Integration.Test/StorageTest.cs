@@ -28,24 +28,31 @@ namespace Integration.Test
             BaseFileWorker.MkDir(RootDirectory);
         }
 
+        private int GetFileId(string fileName)
+        {
+            var fileId = DbUtils.GetIntBySql(
+                "SELECT TOP(1) FileID " +
+                "FROM [dbo].[Files] " +
+                "WHERE FileName = " +
+                $"'{fileName}'");
+            Assert.IsNotNull(fileId, "File with Given FileName is Not Found!");
+            return fileId.Value;
+        }
+
         [TestMethod]
         public void Test_AddFile_GetFile_True()
         {
             var path = RootDirectory + @"\TestAddFile";
-            BaseFileWorker.Write("TestAddFile_Content", path);
+            Assert.IsTrue(BaseFileWorker.Write("TestAddFile_Content", path),
+                "FileWorker Write Wrong Result!");
             var fileName = BaseFileWorker.GetFileName(path);
             var fileContent = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path));
 
             Assert.IsTrue(DbUtils.AddFile(fileName, fileContent), 
                 "AddFile Wrong Result!");
+            var fileId = GetFileId(fileName);
 
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) FileID " +
-                "FROM [dbo].[Files] " +
-                "WHERE FileName = " +
-                $"'{fileName}'");
-
-            Assert.IsTrue(DbUtils.GetFile(flagId, out string outFileName, out byte[] outFileContent), 
+            Assert.IsTrue(DbUtils.GetFile(fileId, out string outFileName, out byte[] outFileContent), 
                 "GetFile Wrong Result!");
             Assert.AreEqual(fileName, outFileName,
                 "Input and Output FileNames Are Not Equal!");
@@ -58,21 +65,21 @@ namespace Integration.Test
         {
             var sb = new StringBuilder();
             var path = RootDirectory + @"\" + sb.Append('x', 255).ToString();
-            BaseFileWorker.Write("TestLongFileName_Content", path);
+            Assert.IsTrue(BaseFileWorker.Write("TestLongFileName_Content", path),
+                "FileWorker Write File with Long FileName Wrong Result!");
             var fileName = BaseFileWorker.GetFileName(path);
             var fileContent = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path));
             var fileContentString = "0x" + $"{BitConverter.ToString(fileContent).Replace("-", "")}";
 
             Assert.IsTrue(DbUtils.AddFile(fileName, fileContent), 
                 "AddFile with Long FileName Wrong Result!");
-
-            var flagId = (int)DbUtils.GetIntBySql(
+            var fileId = (int)DbUtils.GetIntBySql(
                 "SELECT TOP(1) FileID " +
                 "FROM [dbo].[Files] " +
                 "WHERE FileContent = " +
                 $"{fileContentString}");
 
-            Assert.IsTrue(DbUtils.GetFile(flagId, out string outFileName, out byte[] outFileContent),
+            Assert.IsTrue(DbUtils.GetFile(fileId, out string outFileName, out byte[] outFileContent),
                 "GetFile with Long FileName Wrong Result!");
             Assert.AreEqual(fileName, outFileName,
                 "Input and Output Long FileNames Are Not Equal!");
@@ -85,20 +92,16 @@ namespace Integration.Test
         {
             var sb = new StringBuilder();
             var path = RootDirectory + @"\TestLongFileContent";
-            BaseFileWorker.Write(sb.Append('x', 513).ToString(), path);
+            Assert.IsTrue(BaseFileWorker.Write(sb.Append('x', 513).ToString(), path), 
+                "FileWorker Write File with Long FileContent Wrong Result!");
             var fileName = BaseFileWorker.GetFileName(path);
             var fileContent = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path));
 
             Assert.IsTrue(DbUtils.AddFile(fileName, fileContent), 
                 "AddFile with Long FileContent Wrong Result!");
+            var fileId = GetFileId(fileName);
 
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) FileID " +
-                "FROM [dbo].[Files] " +
-                "WHERE FileName = " +
-                $"'{fileName}'");
-
-            Assert.IsTrue(DbUtils.GetFile(flagId, out string outFileName, out byte[] outFileContent),
+            Assert.IsTrue(DbUtils.GetFile(fileId, out string outFileName, out byte[] outFileContent),
                 "GetFile with Long FileContent Wrong Result!");
             Assert.AreEqual(fileName, outFileName,
                 "Input and Output FileNames of File with Long FileContent Are Not Equal!");
@@ -110,16 +113,14 @@ namespace Integration.Test
         public void Test_AddFile_DeleteFile_True()
         {
             var path = RootDirectory + @"\TestDeleteFile";
-            BaseFileWorker.Write("TestDeleteFil_Content", path);
+            Assert.IsTrue(BaseFileWorker.Write("TestDeleteFile_Content", path), 
+                "FileWorker Write Wrong Result!");
             var fileName = BaseFileWorker.GetFileName(path);
             var fileContent = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path));
-            
-            DbUtils.AddFile(fileName, fileContent);
-            var fileId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) FileID " +
-                "FROM [dbo].[Files] " +
-                "WHERE FileName = " +
-                $"'{fileName}'");
+
+            Assert.IsTrue(DbUtils.AddFile(fileName, fileContent),
+                "AddFile Wrong Result!");
+            var fileId = GetFileId(fileName);
 
             Assert.IsTrue(DbUtils.DeleteFile(fileId), 
                 "DeleteFile Wrong Result!");
@@ -131,11 +132,13 @@ namespace Integration.Test
         public void Test_AddFile_GetFiles_OneFile_Valid()
         {
             var path = RootDirectory + @"\TestGetFiles_OneFile";
-            BaseFileWorker.Write("TestGetFiles_Content", path);
+            Assert.IsTrue(BaseFileWorker.Write("TestGetFiles_Content", path),
+                "FileWorker Write Wrong Result!");
             var fileName = BaseFileWorker.GetFileName(path);
             var fileContent = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path));
 
-            DbUtils.AddFile(fileName, fileContent);
+            Assert.IsTrue(DbUtils.AddFile(fileName, fileContent), 
+                "AddFile Wrong Result!");
 
             var dt = DbUtils.GetFiles(fileName);
 
@@ -152,16 +155,20 @@ namespace Integration.Test
         public void Test_AddFile_GetFiles_MultipleFiles_Valid()
         {
             var path1 = RootDirectory + @"\TestGetFiles_MultipleFiles";
-            BaseFileWorker.Write("First_TestGetFiles_Content", path1);
+            Assert.IsTrue(BaseFileWorker.Write("First_TestGetFiles_Content", path1),
+                "FileWorker Write Wrong Result!");
             var fileName1 = BaseFileWorker.GetFileName(path1);
             var fileContent1 = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path1));
+
             BaseFileWorker.MkDir(RootDirectory + @"\SubDirectory");
             var path2 = RootDirectory + @"\SubDirectory\TestGetFiles_MultipleFiles";
-            BaseFileWorker.Write("Second_TestGetFiles_Content", path2);
+            Assert.IsTrue(BaseFileWorker.Write("Second_TestGetFiles_Content", path2), 
+                "FileWorker Write File with Same FileName Wrong Result!");
             var fileName2 = BaseFileWorker.GetFileName(path2);
             var fileContent2 = Encoding.Unicode.GetBytes(BaseFileWorker.ReadAll(path2));
 
-            DbUtils.AddFile(fileName1, fileContent1);
+            Assert.IsTrue(DbUtils.AddFile(fileName1, fileContent1), 
+                "AddFile Wrong Result!");
             Assert.IsTrue(DbUtils.AddFile(fileName2, fileContent2), 
                 "AddFile with Same FileNames Wrong Result!");
 
@@ -174,6 +181,7 @@ namespace Integration.Test
                 "Input and Output FileNames of First File with Same FileName Are Not Equal!");
             CollectionAssert.AreEqual(fileContent1, itemArray1[2] as byte[],
                 "Input and Output FileContents of First File with Same FileName Are Not Equal!");
+
             var itemArray2 = dt.Rows[1].ItemArray;
             Assert.AreEqual(fileName2, itemArray2[1] as string,
                 "Input and Output FileNames of Second File with Same FileName Are Not Equal!");

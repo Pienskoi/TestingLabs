@@ -23,6 +23,16 @@ namespace Integration.Test
                 Server, Database, IsTrusted, Login, Password, ConnectionTimeout);
         }
 
+        private int GetFlagId(string flagView)
+        {
+            var flagId = DbUtils.GetIntBySql("SELECT TOP(1) MultipleBinaryFlagID " +
+                "FROM [dbo].[MultipleBinaryFlags] " +
+                "WHERE MultipleBinaryFlagView = " +
+                $"'{flagView}'");
+            Assert.IsNotNull(flagId, "Flag with Given FlagView is Not Found!");
+            return flagId.Value;
+        }
+
         [TestMethod]
         public void Test_AddFlag_GetFlag_TrueInit_True()
         {
@@ -32,12 +42,7 @@ namespace Integration.Test
 
             Assert.IsTrue(DbUtils.AddFlag(flagView, flagValue), 
                 "AddFlag True Binary Flag Wrong Result!");
-
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) MultipleBinaryFlagID " +
-                "FROM [dbo].[MultipleBinaryFlags] " +
-                "WHERE MultipleBinaryFlagView = " +
-                $"'{flagView}'");
+            var flagId = GetFlagId(flagView);
 
             Assert.IsTrue(DbUtils.GetFlag(flagId, out string outFlagView, out bool? outFlagValue),
                 "GetFlag True Binary Flag Wrong Result!");
@@ -56,12 +61,7 @@ namespace Integration.Test
 
             Assert.IsTrue(DbUtils.AddFlag(flagView, flagValue),
                 "AddFlag False Binary Flag Wrong Result!");
-
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) MultipleBinaryFlagID " +
-                "FROM [dbo].[MultipleBinaryFlags] " +
-                "WHERE MultipleBinaryFlagView = " +
-                $"'{flagView}'");
+            var flagId = GetFlagId(flagView);
 
             Assert.IsTrue(DbUtils.GetFlag(flagId, out string outFlagView, out bool? outFlagValue),
                 "GetFlag False Binary Flag Wrong Result!");
@@ -81,12 +81,7 @@ namespace Integration.Test
 
             Assert.IsTrue(DbUtils.AddFlag(flagView, flagValue),
                 "AddFlag Changed Binary Flag Wrong Result!");
-
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) MultipleBinaryFlagID " +
-                "FROM [dbo].[MultipleBinaryFlags] " +
-                "WHERE MultipleBinaryFlagView = " +
-                $"'{flagView}'");
+            var flagId = GetFlagId(flagView);
 
             Assert.IsTrue(DbUtils.GetFlag(flagId, out string outFlagView, out bool? outFlagValue),
                 "GetFlag Changed Binary Flag Wrong Result!");
@@ -105,12 +100,7 @@ namespace Integration.Test
 
             Assert.IsTrue(DbUtils.AddFlag(flagView, flagValue),
                 "AddFlag True Binary Flag with Big Length Wrong Result!");
-
-            var flagId = (int)DbUtils.GetIntBySql(
-                "SELECT TOP(1) MultipleBinaryFlagID " +
-                "FROM [dbo].[MultipleBinaryFlags] " +
-                "WHERE MultipleBinaryFlagView = " +
-                $"'{flagView}'");
+            var flagId = GetFlagId(flagView);
 
             Assert.IsTrue(DbUtils.GetFlag(flagId, out string outFlagView, out bool? outFlagValue),
                 "GetFlag True Binary Flag with Big Length Wrong Result!");
@@ -118,6 +108,60 @@ namespace Integration.Test
                 "True Flag with Big Length Input and Output FlagViews Are Not Equal!");
             Assert.AreEqual(flagValue, outFlagValue,
                 "True Flag with Big Length Input and Output FlagValues Are Not Equal!");
+        }
+
+        [TestMethod]
+        public void Test_AddFlag_WrongFlagValue_False()
+        {
+            var flag = new MultipleBinaryFlag(50);
+            var flagView = flag.ToString();
+            var flagValue = (bool)flag.GetFlag();
+
+            Assert.IsFalse(DbUtils.AddFlag(flagView, !flagValue),
+                "AddFlag with Wrong Flag Value Wrong Result!");
+        }
+
+        [TestMethod]
+        public void Test_AddFlag_EmptyFlagView_False()
+        {
+            Assert.IsFalse(DbUtils.AddFlag(string.Empty, true),
+                "AddFlag True with Empty Flag View Wrong Result!");
+            Assert.IsFalse(DbUtils.AddFlag(string.Empty, false),
+                "AddFlag False with Empty Flag View Wrong Result!");
+        }
+
+        [TestMethod]
+        public void Test_AddFlag_OneCharFlagView_False()
+        {
+            Assert.IsFalse(DbUtils.AddFlag("T", true),
+                "AddFlag True  with One Character Flag View Wrong Result!");
+            Assert.IsFalse(DbUtils.AddFlag("F", false),
+                "AddFlag False with One Character Flag View Wrong Result!");
+        }
+
+        [TestMethod]
+        public void Test_AddFlag_NullFlagView_False()
+        {
+            Assert.IsFalse(DbUtils.AddFlag(null, true),
+                "AddFlag True with Null Flag View Wrong Result!");
+            Assert.IsFalse(DbUtils.AddFlag(null, false),
+                "AddFlag False with Null Flag View Wrong Result!");
+        }
+
+        [TestMethod]
+        public void Test_AddFlag_InvalidFlagView_False()
+        {
+            Assert.IsFalse(DbUtils.AddFlag("Invalid Flag View", true),
+                "AddFlag True with Invalid Flag View Wrong Result!");
+            Assert.IsFalse(DbUtils.AddFlag("Invalid Flag View", false),
+                "AddFlag False with Invalid Flag View Wrong Result!");
+        }
+
+        [TestMethod]
+        public void Test_GetFlag_InvalidFlagId_False()
+        {
+            Assert.IsFalse(DbUtils.GetFlag(-1, out _, out _),
+                "GetFlag Invalid Id Wrong Result!");
         }
     }
 }
